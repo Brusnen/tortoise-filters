@@ -8,6 +8,7 @@
 
 ```
 from tortoise_filters.filterset import FilterSet
+from tortoise_filters.filter_fields import NumberFilter, CharFilter
 
 class User(Model):
     id = fields.IntField(pk=True)
