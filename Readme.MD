@@ -2,6 +2,8 @@
 
 ## Async library inspired by django-filters, used with FastAPI and Tortoise ORM
 
+```pip install tortoise-filters```
+
 ### examples
 
 ```
