@@ -1,0 +1,2 @@
+class TortoiseFiltersException(Exception):
+    pass
