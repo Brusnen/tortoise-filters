@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional, Type
 from pydantic.fields import FieldInfo
 from tortoise import Model
-from tortoise_filters.models import User
 from tortoise.queryset import QuerySet
 from pydantic import BaseModel
 from tortoise_filters.filter_fields import NumberFilter, BaseFieldFilter, InFilter, CharFilter
