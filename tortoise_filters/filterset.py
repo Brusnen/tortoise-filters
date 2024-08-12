@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional, Type
+from typing import List, Dict, Any, Optional, Type, Annotated, get_origin
 from pydantic.fields import FieldInfo
 from tortoise import Model
 from tortoise.queryset import QuerySet
@@ -30,7 +30,12 @@ class Dependencies(BaseModel):
             if f_annotation:
                 new_annotations[f_name] = Optional[f_annotation]
 
-            new_fields[f_name] = FieldInfo(annotation=Optional[f_annotation], default=None)
+            if get_origin(f_annotation) is Annotated:
+                print(f_annotation)
+                new_fields[f_name] = FieldInfo(annotation=f_annotation, default=None)
+                print(new_fields)
+            else:
+                new_fields[f_name] = FieldInfo(annotation=Optional[f_annotation], default=None)
         cls.model_fields.update(new_fields)
         cls.model_rebuild(force=True)
 
@@ -64,7 +69,9 @@ class BaseFilterSet(ABC):
         BaseFilterSet.check_fields_appearance(attributes, cls.model)
         for key, value in attributes.items():
             if isinstance(value, BaseFieldFilter):
+                print(value, value.__annotations__)
                 dep = {}
+                # print(value.__annotations__)
                 dep[key] = (value.__annotations__.get('value'), None)
                 DynamicClass.add_fields(**dep)
 

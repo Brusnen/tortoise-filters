@@ -40,12 +40,12 @@ async def get_user(user: TortoiseFilterSet.to_dependencies() = Depends()):
  ```
 
 # RoadMap
-- add classes for filtering multiple values (InFilter)
-- add validation for input values
-- add classes for date filtering and range filtering
-- add custom methods support
-- add support for outer querysets
-- add integration with AutoRouter library
-- add tests
+- [x] add classes for filtering multiple values (InFilter) 
+- [ ] add validation for input values
+- [ ] add classes for date filtering and range filtering
+- [ ] add custom methods support
+- [ ] add support for outer querysets
+- [ ] add integration with AutoRouter library
+- [ ] tests
 ## Contributing
 you are welcome to contribute this project!

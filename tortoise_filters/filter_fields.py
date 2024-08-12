@@ -1,5 +1,8 @@
+import datetime
 from abc import ABC, abstractmethod
-from typing import Callable
+from typing import Callable, List, Any, Annotated, Union
+
+from fastapi.params import Query
 from tortoise.queryset import QuerySet
 from tortoise.models import Model
 
@@ -89,11 +92,18 @@ class CharFilter(BaseFieldFilter):
 
 
 class InFilter(BaseFieldFilter):
+    value: str
+
     available_expr = [None]
 
-    def __init__(self, field_name: str, lookup_expr: str = None, value=None, method=None) -> None:
+    def __init__(self, field_name: str, lookup_expr: str = None, value=None, method=None, type_field=int) -> None:
         self.value = value
+        self._annotations = {'value': Annotated[Union[List[type_field], None], Query(...)]}
         super().__init__(field_name, lookup_expr, method)
+
+    @property
+    def __annotations__(self):
+        return self._annotations
 
     def to_internal_value(self):
         if not isinstance(self.value, list):
@@ -112,11 +122,13 @@ class InFilter(BaseFieldFilter):
 class DateTimeFilter(BaseFieldFilter):
     available_expr = [None]
 
+    value: datetime.datetime
+
     def __init__(self, field_name: str, lookup_expr: str = None, value=None, method=None) -> None:
         self.value = value
         super().__init__(field_name, lookup_expr, method)
 
-    def _kwargs_builder(self, value: list):
+    def _kwargs_builder(self, value: datetime.datetime):
         if self.lookup_expr is not None:
             return {self.field_name + "__" + self.lookup_expr: value}
         return {self.field_name: value}
