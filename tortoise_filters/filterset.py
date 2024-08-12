@@ -4,7 +4,8 @@ from pydantic.fields import FieldInfo
 from tortoise import Model
 from tortoise.queryset import QuerySet
 from pydantic import BaseModel
-from tortoise_filters.filter_fields import NumberFilter, BaseFieldFilter, InFilter, CharFilter
+from tortoise_filters.filter_fields import BaseFieldFilter
+
 
 class Dependencies(BaseModel):
 
@@ -29,16 +30,16 @@ class Dependencies(BaseModel):
             if f_annotation:
                 new_annotations[f_name] = Optional[f_annotation]
 
-
             new_fields[f_name] = FieldInfo(annotation=Optional[f_annotation], default=None)
         cls.model_fields.update(new_fields)
         cls.model_rebuild(force=True)
 
+
 def create_dynamic_class(name) -> Type[Dependencies]:
-    return type(name, (Dependencies,),  {'greet': lambda self: "Hello from DynamicClass!"})
+    return type(name, (Dependencies,), {'greet': lambda self: "Hello from DynamicClass!"})
+
 
 class BaseFilterSet(ABC):
-
     model = None
     fields: List[str] = None
 
@@ -68,9 +69,11 @@ class BaseFilterSet(ABC):
                 DynamicClass.add_fields(**dep)
 
         return DynamicClass
+
     @abstractmethod
     def filter_queryset(self):
         raise NotImplementedError
+
 
 class FilterSet(BaseFilterSet):
 
@@ -88,5 +91,3 @@ class FilterSet(BaseFilterSet):
                     value.value = self.query_params[key]
                     self.queryset = await value.filter_queryset(self.queryset, value.value)
         return self.queryset
-
-
