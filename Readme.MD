@@ -1,3 +1,6 @@
+![PyPI](https://img.shields.io/pypi/v/tortoise-filters?label=pypi%20package)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/tortoise-filters)
+
 # Tortoise Filters
 
 ## Async library inspired by django-filters, used with FastAPI and Tortoise ORM
