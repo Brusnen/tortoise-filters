@@ -1,6 +1,6 @@
 import datetime
 from abc import ABC, abstractmethod
-from typing import Callable, List, Any, Annotated, Union
+from typing import Callable, List, Annotated, Union
 
 from fastapi.params import Query
 from tortoise.queryset import QuerySet
@@ -120,7 +120,26 @@ class InFilter(BaseFieldFilter):
 
 
 class DateTimeFilter(BaseFieldFilter):
-    available_expr = [None]
+    available_expr = [
+        'exact',
+        'iexact',
+        'contains',
+        'icontains',
+        'gt',
+        'gte',
+        'lt',
+        'lte',
+        'range',
+        'isnull',
+        'year',
+        'month',
+        'day',
+        'week_day',
+        'hour',
+        'minute',
+        'second',
+        None
+    ]
 
     value: datetime.datetime
 
@@ -128,22 +147,113 @@ class DateTimeFilter(BaseFieldFilter):
         self.value = value
         super().__init__(field_name, lookup_expr, method)
 
+    def to_internal_value(self):
+        if not isinstance(self.value, datetime.datetime):
+            raise TypeError(f'Invalid type')
+
     def _kwargs_builder(self, value: datetime.datetime):
         if self.lookup_expr is not None:
             return {self.field_name + "__" + self.lookup_expr: value}
         return {self.field_name: value}
 
     async def filter_queryset(self, queryset: QuerySet, value) -> QuerySet:
-        self.lookup_expr = 'range'
+        if self.value is None:
+            return queryset
+        self._check_lookup_exr()
+        self.to_internal_value()
+        kwargs = self._kwargs_builder(value)
+        queryset = queryset.filter(**kwargs)
         return queryset
 
 
 class DateFilter(BaseFieldFilter):
-    """date filter"""
+    available_expr = [
+        'exact',
+        'iexact',
+        'contains',
+        'icontains',
+        'gt',
+        'gte',
+        'lt',
+        'lte',
+        'range',
+        'isnull',
+        'year',
+        'month',
+        'day',
+        'week_day',
+        'hour',
+        'minute',
+        'second',
+        None
+    ]
+
+    value: datetime.date
+
+    def __init__(self, field_name: str, lookup_expr: str = None, value=None, method=None) -> None:
+        self.value = value
+        super().__init__(field_name, lookup_expr, method)
+
+    def to_internal_value(self):
+        if not isinstance(self.value, datetime.date):
+            raise TypeError(f'Invalid type')
+
+    def _kwargs_builder(self, value: datetime.date):
+        if self.lookup_expr is not None:
+            return {self.field_name + "__" + self.lookup_expr: value}
+        return {self.field_name: value}
+
+    async def filter_queryset(self, queryset: QuerySet, value) -> QuerySet:
+        if self.value is None:
+            return queryset
+        self._check_lookup_exr()
+        self.to_internal_value()
+        kwargs = self._kwargs_builder(value)
+        queryset = queryset.filter(**kwargs)
+        return queryset
+
+class BaseRangeFilter(BaseFieldFilter):
+    value_min: int
+    value_max: int
+
+    def __init__(self, field_name: str, lookup_expr: str, method: Callable = None) -> None:
+        super().__init__(field_name, lookup_expr, method)
 
 
-class NumberRangeFilter(BaseFieldFilter):
-    """number filter"""
+class NumberRangeFilter(BaseRangeFilter):
+
+    value_min = int
+    value_max = int
+
+    available_expr = ['gte', 'gt', None]
+
+    def __init__(self, field_name: str, lookup_expr: str = None, value=None, method=None) -> None:
+        self.value: int = value
+        super().__init__(field_name, lookup_expr, method)
+
+    def to_internal_value(self):
+        try:
+            int(self.value)
+        except TypeError:
+            raise TypeError('Invalid type')
+
+    def _kwargs_builder(self, value: int):
+        if self.lookup_expr is not None:
+            print(self.field_name)
+            return {self.field_name + "__" + self.lookup_expr: value}
+        return {self.field_name: value}
+
+    async def filter_queryset(self, queryset: QuerySet[Model], value) -> QuerySet[Model]:
+        if self.value is None:
+            return queryset
+        self._check_lookup_exr()
+        self.to_internal_value()
+        kwargs = self._kwargs_builder(value)
+        print(kwargs)
+        queryset = queryset.filter(**kwargs)
+        a = await queryset
+        print(a)
+        return queryset
 
 
 class DateRangeFilter(BaseFieldFilter):
