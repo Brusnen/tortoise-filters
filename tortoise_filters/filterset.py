@@ -31,9 +31,7 @@ class Dependencies(BaseModel):
                 new_annotations[f_name] = Optional[f_annotation]
 
             if get_origin(f_annotation) is Annotated:
-                print(f_annotation)
                 new_fields[f_name] = FieldInfo(annotation=f_annotation, default=None)
-                print(new_fields)
             else:
                 new_fields[f_name] = FieldInfo(annotation=Optional[f_annotation], default=None)
         cls.model_fields.update(new_fields)
@@ -41,7 +39,7 @@ class Dependencies(BaseModel):
 
 
 def create_dynamic_class(name) -> Type[Dependencies]:
-    return type(name, (Dependencies,), {'greet': lambda self: "Hello from DynamicClass!"})
+    return type(name, (Dependencies,), {'greet': lambda self: "DynamicClass"})
 
 
 class BaseFilterSet(ABC):
